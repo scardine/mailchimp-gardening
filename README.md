@@ -37,6 +37,7 @@ have to unsubscribe every hotmail address without proven activity:
   9. take note of your list id. It is under "Lists"->"Settings"->"unique id"
  10. run prune.py
 
+
 EXAMPLE
 -------
 
@@ -50,5 +51,19 @@ list id is 576ef0a71c:
 (where segmentMyList_Apr_20_2012.csv is the file you downloaded at step 7)
 
 
+CONTRIBUTE
+----------
+
+Send me patches, baby!
 
 
+AUTHOR
+------
+
+My name is Paulo Scardine, I work at Xtend in Brazil (so excuse my lame English,
+my native idiom is Portuguese).
+
+I manage big websites using Python for a living.
+
+paulo (at) xtend . com . br
+http://xtend.com.br/
