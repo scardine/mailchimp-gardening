@@ -60,7 +60,7 @@ Send me patches, baby!
 AUTHOR
 ------
 
-My name is [Paulo Scardine][1], I work at [Xtend][2] in Brazil (so excuse my lame English,
+My name is [Paulo Scardine][1] and I work at [Xtend][2] in Brazil (so excuse my lame English,
 my native idiom is Portuguese).
 
 I manage big websites using Python for a living.
