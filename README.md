@@ -25,17 +25,17 @@ First, install mailsnake, if you don't have it already:
 Next, select the segment you want to prune. For example, if you
 have to unsubscribe every hotmail address without proven activity:
 
-  1. go to your list, subscribers->segment
-  2. select "Subscribers match **[ALL]** of the following"
-  3. select "Email"->"ends with"->"@hotmail.com" and click (+)
-  4. select "Subscriber activity"->"dit not open"->"any campaign" and click (+)
-  5. select "Subscriber activity"->"dit not click"->"any campaign"
-  6. click "View segment"
-  7. if you are satusfied with the results, download the segment - if not
-     repeat and rinse.
-  8. take note of your API key. It is under "Account"->"API keys" (add a new if needed)
-  9. take note of your list id. It is under "Lists"->"Settings"->"unique id"
- 10. run prune.py
+  1.   go to your list, subscribers->segment
+  1.   select "Subscribers match **[ALL]** of the following"
+  1.   select "Email"->"ends with"->"@hotmail.com" and click (+)
+  1.   select "Subscriber activity"->"dit not open"->"any campaign" and click (+)
+  1.   select "Subscriber activity"->"dit not click"->"any campaign"
+  1.   click "View segment"
+  1.   if you are satusfied with the results, download the segment - if not
+       repeat and rinse.
+  1.   take note of your API key. It is under "Account"->"API keys" (add a new if needed)
+  1.   take note of your list id. It is under "Lists"->"Settings"->"unique id"
+  1.   run prune.py
 
 
 EXAMPLE
