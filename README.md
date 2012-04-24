@@ -1,7 +1,7 @@
 mailchimp-gardening
 ===================
 
-Tools for pruning Maichimp lists.
+Tools for pruning huge Maichimp lists.
 
 WHY?
 ----
@@ -54,7 +54,7 @@ list id is 576ef0a71c:
 CONTRIBUTE
 ----------
 
-Send me patches, baby!
+Just send me patches, baby!
 
 
 AUTHOR
@@ -64,7 +64,6 @@ My name is [Paulo Scardine][1] and I work at [Xtend][2] in Brazil (so excuse my 
 my native idiom is Portuguese).
 
 I manage big websites using Python for a living.
-
 
    [1]: mailto:paulo@xtend.com.br
    [2]: http://xtend.com.br/
