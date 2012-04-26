@@ -60,7 +60,7 @@ def perform_unsubscribe(ms, batch):
     @ms: mailsnake instance
     @batch: list of email addresses
     """
-    results = ms.listBatchUnsubscribe(id=args.list, emails=batch, send_goodbye=False)
+    results = ms.listBatchUnsubscribe(id=args.list_id, emails=batch, send_goodbye=False)
     success_count = results.get('success_count', 0)
     error_count = results.get('error_count', 0)
     if success_count:
