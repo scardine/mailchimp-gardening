@@ -26,6 +26,7 @@ parser.add_argument('-q', '--quiet', const=True, action='store_const', help='"qu
 parser.add_argument('-i', '--list-id', type=str, help='List ID (found under List->Settings->unique id)', required=True)
 parser.add_argument('-f', '--logfile', type=str, help='Log file name (default: stderr)')
 parser.add_argument('-l', '--loglevel', type=str, help='Log level (default: ERROR)')
+parser.add_argument('-L', '--lists', type=str, help='Return list names and unique ids')
 parser.add_argument('-k', '--key', type=str, help='API Key (found under Account->API Keys)', required=True)
 parser.add_argument('file', type=str, help='File containing email list')
 args = parser.parse_args()
@@ -61,12 +62,7 @@ def perform_unsubscribe(ms, batch):
     @batch: list of email addresses
     """
     results = ms.listBatchUnsubscribe(id=args.list_id, emails=batch, send_goodbye=False)
-    success_count = results.get('success_count', 0)
-    error_count = results.get('error_count', 0)
-    if success_count:
-        logging.info("{count} email(s) unsubscribed.".format(count=success_count))
-    if error_count:
-        logging.info("{count} errors.".format(count=error_count))
+    if results.get('error_count', 0):
         for error in results.get('errors', []):
             logging.error(str(error))
     return results
@@ -77,16 +73,27 @@ def batch_unsubscribe(ms):
     @ms: mailsnake instance
     """
     batch = []
+    batch_count = 0
+    error_count = 0
+    unsubscribe_count = 0
     try:
         while True:
             email = (yield)
             batch.append(email)
             if len(batch) == BATCH_SIZE:
-                perform_unsubscribe(ms, batch)
+                batch_count += 1
+                results = perform_unsubscribe(ms, batch)
+                unsubscribe_count += results.get('success_count', 0)
+                error_count += results.get('error_count', 0)
+                logging.info("Batch {batch}: {unsubs} email(s) unsubscribed, {errors} error(s) so far.".format(unsubs=unsubscribe_count, errors=error_count, batch=batch_count))
                 batch = []
     except GeneratorExit:
         if batch:
-            perform_unsubscribe(ms, batch)
+            batch_count += 1
+            results = perform_unsubscribe(ms, batch)
+            unsubscribe_count += results.get('success_count', 0)
+            error_count += results.get('error_count', 0)
+            logging.info("Last batch: {unsubs} email(s) unsubscribed, {errors} error(s) total.".format(unsubs=unsubscribe_count, errors=error_count, batch=batch_count))
 
 def main():
     ms = MailSnake(args.key)
