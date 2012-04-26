@@ -41,7 +41,7 @@ if args.loglevel:
         raise ValueError('Invalid log level. Should be CRITICAL, ERROR, WARNING, INFO or DEBUG.')
 else:
     level = LOGLEVEL
-logging.basicConfig(file=logfile, level=level)
+logging.basicConfig(file=logfile, level=level, format=FORMAT)
 
 def coroutine(func):
     """When using coroutines, remembering to call .next() is easy to
