@@ -17,7 +17,7 @@ import argparse
 import sys
 
 BATCH_SIZE = 50
-FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+FORMAT = '%(asctime)-15s %(user)-8s %(message)s'
 LOGLEVEL = logging.INFO
 
 # COMMAND LINE OPTIONS
