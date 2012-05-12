@@ -23,6 +23,7 @@ LOGLEVEL = logging.INFO
 
 # COMMAND LINE OPTIONS
 parser = argparse.ArgumentParser(description='Batch unsubscribe for large MailChimp lists')
+group = parser.add_mutually_exclusive_group()
 parser.add_argument('-q', '--quiet', const=True, action='store_const', help='"quiet mode": supress messages')
 parser.add_argument('-i', '--list-id', type=str, help='List ID (found under List->Settings->unique id)', required=True)
 parser.add_argument('-f', '--logfile', type=str, help='Log file name (default: stderr)')
@@ -30,7 +31,7 @@ parser.add_argument('-d', '--download', type=str, help='Download given list id')
 parser.add_argument('-l', '--loglevel', type=str, help='Log level (default: ERROR)')
 parser.add_argument('-L', '--lists', type=str, help='Return list names and unique ids')
 parser.add_argument('-k', '--key', type=str, help='API Key (found under Account->API Keys)', required=True)
-parser.add_argument('file', type=str, help='File containing email list')
+parser.add_argument('file', type=str, help='File containing email list', required=False)
 args = parser.parse_args()
 
 # LOGGING
@@ -122,6 +123,18 @@ def main():
     if args.download:
         download()
     else:
+        if not args.file:
+            logging.error("Input file not supplied.")
+            if not args.quiet:
+                print "Input file not supplied."
+            exit(-1)
+        try:
+            input_file = open(args.file, 'r')
+        except IOError:
+            logging.error("I/O error opening input file.")
+            if not args.quiet:
+                print "I/O error opening input file."
+            exit(-2)
         ms = MailSnake(args.key)
         input_file = open(args.file, 'r')
         logging.info("Opening '{file}' for input.".format(file=args.file))
