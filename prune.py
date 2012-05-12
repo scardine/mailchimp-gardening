@@ -14,6 +14,7 @@
 from mailsnake import MailSnake
 import logging
 import argparse
+import datetime
 import sys
 
 BATCH_SIZE = 50
@@ -25,6 +26,7 @@ parser = argparse.ArgumentParser(description='Batch unsubscribe for large MailCh
 parser.add_argument('-q', '--quiet', const=True, action='store_const', help='"quiet mode": supress messages')
 parser.add_argument('-i', '--list-id', type=str, help='List ID (found under List->Settings->unique id)', required=True)
 parser.add_argument('-f', '--logfile', type=str, help='Log file name (default: stderr)')
+parser.add_argument('-d', '--download', type=str, help='Download given list id')
 parser.add_argument('-l', '--loglevel', type=str, help='Log level (default: ERROR)')
 parser.add_argument('-L', '--lists', type=str, help='Return list names and unique ids')
 parser.add_argument('-k', '--key', type=str, help='API Key (found under Account->API Keys)', required=True)
@@ -95,19 +97,43 @@ def batch_unsubscribe(ms):
             error_count += results.get('error_count', 0)
             logging.info("Last batch: {unsubs} email(s) unsubscribed, {errors} error(s) total.".format(unsubs=unsubscribe_count, errors=error_count, batch=batch_count))
 
-def main():
-    ms = MailSnake(args.key)
-    input_file = open(args.file, 'r')
-    logging.info("Opening '{file}' for input.".format(file=args.file))
-    unsubscriber = batch_unsubscribe(ms)
-    for line in input_file:
-        if ',' in line:
-            email = line.split(',')[0] # CSV
+def progress(i):
+    if i and i % 100 == 0:
+        if i % 5000 == 0:
+            print "", i
+        if i % 1000 == 0:
+            print '-'
         else:
-            email = line.strip()       # Plain text
-        if '@' not in email:
-            continue # Header?
-        unsubscriber.send(email)
+            sys.stdout.write('.')
+            sys.stdout.flush()
+
+def download():
+    dc = args.key[-3:]
+    url = 'http://{0}.api.mailchimp.com/export/1.0/list'.format(dc)
+    timestamp = '{:04d}_{:02d}_{:02d}-{:02d}_{:02d}-'.format(datetime.datetime.now().timetuple())
+    for status in ('subscribed', 'unsubscribed', 'cleaned'):
+        r = requests.get(url, params=dict(apikey=args.key, id=args.list_id, status=status))
+        with open('{0}-{1}.csv'.format(api_key, list_id), 'w') as output:
+            for i, line in enumerate(r.iter_lines()):
+                output.write(line)
+                progress(i)
+
+def main():
+    if args.download:
+        download()
+    else:
+        ms = MailSnake(args.key)
+        input_file = open(args.file, 'r')
+        logging.info("Opening '{file}' for input.".format(file=args.file))
+        unsubscriber = batch_unsubscribe(ms)
+        for line in input_file:
+            if ',' in line:
+                email = line.split(',')[0] # CSV
+            else:
+                email = line.strip()       # Plain text
+            if '@' not in email:
+                continue # Header?
+            unsubscriber.send(email)
 
 if __name__ == '__main__':
     main()
