@@ -31,7 +31,7 @@ parser.add_argument('-d', '--download', type=str, help='Download given list id')
 parser.add_argument('-l', '--loglevel', type=str, help='Log level (default: ERROR)')
 parser.add_argument('-L', '--lists', type=str, help='Return list names and unique ids')
 parser.add_argument('-k', '--key', type=str, help='API Key (found under Account->API Keys)', required=True)
-parser.add_argument('file', type=str, help='File containing email list', required=False)
+parser.add_argument('file', type=str, help='File containing email list', nargs='?')
 args = parser.parse_args()
 
 # LOGGING
