@@ -16,6 +16,7 @@ import logging
 import argparse
 import datetime
 import sys
+import requests
 
 BATCH_SIZE = 50
 FORMAT = '%(asctime)-15s %(message)s'
@@ -23,13 +24,12 @@ LOGLEVEL = logging.INFO
 
 # COMMAND LINE OPTIONS
 parser = argparse.ArgumentParser(description='Batch unsubscribe for large MailChimp lists')
-group = parser.add_mutually_exclusive_group()
 parser.add_argument('-q', '--quiet', const=True, action='store_const', help='"quiet mode": supress messages')
-parser.add_argument('-i', '--list-id', type=str, help='List ID (found under List->Settings->unique id)', required=True)
+parser.add_argument('-i', '--list-id', type=str, help='List ID (found under List->Settings->unique id)')
 parser.add_argument('-f', '--logfile', type=str, help='Log file name (default: stderr)')
-parser.add_argument('-d', '--download', type=str, help='Download given list id')
+parser.add_argument('-d', '--download', const=True, action='store_const', help='Download given list id')
 parser.add_argument('-l', '--loglevel', type=str, help='Log level (default: ERROR)')
-parser.add_argument('-L', '--lists', type=str, help='Return list names and unique ids')
+parser.add_argument('-L', '--lists', const=True, action='store_const', help='Return list names and unique ids')
 parser.add_argument('-k', '--key', type=str, help='API Key (found under Account->API Keys)', required=True)
 parser.add_argument('file', type=str, help='File containing email list', nargs='?')
 args = parser.parse_args()
@@ -102,40 +102,68 @@ def progress(i):
     if i and i % 100 == 0:
         if i % 5000 == 0:
             print "", i
-        if i % 1000 == 0:
-            print '-'
+        elif i % 1000 == 0:
+            sys.stdout.write('. ')
         else:
             sys.stdout.write('.')
-            sys.stdout.flush()
+        sys.stdout.flush()
 
 def download():
     dc = args.key[-3:]
     url = 'http://{0}.api.mailchimp.com/export/1.0/list'.format(dc)
-    timestamp = '{:04d}_{:02d}_{:02d}-{:02d}_{:02d}-'.format(datetime.datetime.now().timetuple())
+    timestamp = '{0:04d}_{1:02d}_{2:02d}-{3:02d}_{4:02d}'.format(*datetime.datetime.now().timetuple())
     for status in ('subscribed', 'unsubscribed', 'cleaned'):
         r = requests.get(url, params=dict(apikey=args.key, id=args.list_id, status=status))
-        with open('{0}-{1}.csv'.format(api_key, list_id), 'w') as output:
+        with open('{0}-{1}-{2}-{3}.csv'.format(timestamp, status, args.key, args.list_id), 'w') as output:
+            logging.info("Downloading status {0} to {1}".format(status, output.name))
+            i = 0
             for i, line in enumerate(r.iter_lines()):
                 output.write(line)
-                progress(i)
+                if not args.quiet:
+                    progress(i)
+            if not(args.quiet or (i % 1000 == 0)):
+                print "", i
+    logging.info("Download finished.")
+
+def get_lists(ms):
+    mclists = ms.lists()
+    if mclists.get('total', 0):
+        for mclist in mclists['data']:
+            print mclist['id'], mclist['name']
 
 def main():
+    ms = MailSnake(args.key)
     if args.download:
-        download()
-    else:
-        if not args.file:
-            logging.error("Input file not supplied.")
+        if not args.list_id:
+            err = "{0}: error: argument -i/--list-id is required for download.".format(__file__)
+            logging.error(err)
             if not args.quiet:
-                print "Input file not supplied."
+                print err
             exit(-1)
+        download()
+    elif args.lists:
+        get_lists(ms)
+    else:
+        if not args.list_id:
+            err = "{0}: error: argument -i/--list-id is required for download.".format(__file__)
+            logging.error(err)
+            if not args.quiet:
+                print err
+            exit(-1)
+        if not args.file:
+            err = "{0}: error: argument 'file' is required for pruning.".format(__file__)
+            logging.error(err)
+            if not args.quiet:
+                print err
+            exit(-2)
         try:
             input_file = open(args.file, 'r')
         except IOError:
-            logging.error("I/O error opening input file.")
+            err = "{0}: I/O error opening input file '{1}'.".format(__file__, args.file)
+            logging.error(err)
             if not args.quiet:
-                print "I/O error opening input file."
-            exit(-2)
-        ms = MailSnake(args.key)
+                print msg
+            exit(-3)
         input_file = open(args.file, 'r')
         logging.info("Opening '{file}' for input.".format(file=args.file))
         unsubscriber = batch_unsubscribe(ms)

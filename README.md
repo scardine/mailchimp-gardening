@@ -10,17 +10,19 @@ If you manage large Mailchimp lists, you know their web interface
 cant't handle more than a couple thousand addresses at a time. Try
 to feed more than that and you start to get "Gateway Timeout" errors.
 
-If you are not using double opt-in, from time to time the compliance
-team you force you to prune your lists. It is very boring to unsubscribe
-100,000 adresses manually.
+Even if you are using double opt-in, from time to time the compliance
+team may force you to prune your lists.
 
+It is very boring to unsubscribe 100,000 adresses manually in
+small batches, so I wrote this.
 
 HOW?
 ----
 
-First, install mailsnake, if you don't have it already:
+First, install some libs, if you don't have them already:
 
     pip install mailsnake
+    pip install requests
     
 Next, select the segment you want to prune. For example, if you
 have to unsubscribe every hotmail address without proven activity:
@@ -54,7 +56,7 @@ list id is 576ef0a71c:
 CONTRIBUTE
 ----------
 
-Just send me patches, baby!
+Just send me patches.
 
 
 AUTHOR
@@ -63,7 +65,7 @@ AUTHOR
 My name is [Paulo Scardine][1] and I work at [Xtend][2] in Brazil (so excuse my lame English,
 my native idiom is Portuguese).
 
-I manage big websites using Python for a living.
+I manage big websites and huge email lists for a living.
 
    [1]: mailto:paulo@xtend.com.br
    [2]: http://xtend.com.br/
